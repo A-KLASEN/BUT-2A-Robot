@@ -61,6 +61,12 @@ int cycle = 1;
 //Variable machine a etat
 int etatRobot = 0;
 
+//Capteur Droite
+const int AnalogPin1 = 1;
+int AnalogValue1 = 4095;
+//Cateur Gauche
+const int AnalogPin2 = 2;
+int AnalogValue2 = 4095;
 
 // ---------------------------------------------------------------------
 
@@ -88,15 +94,19 @@ void setup() {
   pinMode(motor2Pin2, OUTPUT);
   pinMode(enable2Pin, OUTPUT);
 
-  dutyCycle = 220;
-  pos = 0;
+  // Capteur IR
+  pinMode(AnalogPin1, INPUT);
+  pinMode(AnalogPin2, INPUT);
+
+  dutyCycle = 255;
+  pos = 90;
   // Configurer les fonctionnalités PWM
   ledcAttach(enable1Pin, freq, resolution);
   ledcAttach(enable2Pin, freq, resolution);
 
   ledcWrite(enable1Pin, dutyCycle);
   ledcWrite(enable2Pin, dutyCycle);
-
+  
   // Déclaration de l'écran 
   //  !!! Si non déclaré : reset en boucle de l'esp et blue screen de l'ordinateur -> upload un code vierge !!!
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -127,6 +137,9 @@ void loop() {
   //ultraCD = readSensor(trigPinCD, echoPinCD);
   //ultraCG = readSensor(trigPinCG, echoPinCG);
 
+  AnalogValue1 = analogRead(AnalogPin1);
+  AnalogValue2 = analogRead(AnalogPin2);
+
   display.clearDisplay();
 
   display.setTextSize(1);
@@ -146,8 +159,8 @@ void loop() {
 
     default : break;
 
-
   }
+
 /*
   if (ultraAM < 20){
     motorStop();
@@ -178,26 +191,26 @@ int readSensor(int trigPin, int echoPin){
 
 void avancer(){
   
-  if (ultraAM < 20){
-    backward();
-    delay(100);
+  if (ultraAM < 10){
+    //backward();
+    //delay(100);
     if(ultraAD <= ultraAG){
       gauche();
     } else {
       droite();
     }
-    delay(100);
+    delay(75);
 
-  } else if ( ultraAD < 30) {
-    backward();
-    delay(100);
+  } else if ( ultraAD < 10) {
+    //backward();
+    //delay(100);
     gauche();
-    delay(100);
-  } else if (ultraAG < 30){
-    backward();
-    delay(100);
+    delay(75);
+  } else if (ultraAG < 10){
+    //backward();
+    //delay(100);
     droite();
-    delay(100);
+    delay(75);
   } else {
     forward();
   }
@@ -298,4 +311,9 @@ void affichageIR(){
   display.setCursor(0, 32);
   display.print("Pos : ");
   display.println(pos);
+  display.setCursor(64, 32);
+  display.print(AnalogValue1);
+  display.print("  ");
+  display.println(AnalogValue2);
 }
+
