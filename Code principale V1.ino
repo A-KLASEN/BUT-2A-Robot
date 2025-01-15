@@ -37,11 +37,11 @@ const int echoPinCD = 40; // Côté Droit (Echo)
 const int trigPinCG = 38; // Côté Gauche (Trig)
 const int echoPinCG = 39; // Côté Gauche (Echo)
 
-int ultraAM = 0;
-int ultraAG = 0;
-int ultraAD = 0;
-int ultraCG = 0;
-int ultraCD = 0;
+int ultraAM = 200;
+int ultraAG = 200;
+int ultraAD = 200;
+int ultraCG = 200;
+int ultraCD = 200;
 
 // Définition de la vitesse du son en cm/µs
 #define SOUND_SPEED 0.034
@@ -88,7 +88,7 @@ void setup() {
   pinMode(motor2Pin2, OUTPUT);
   pinMode(enable2Pin, OUTPUT);
 
-  dutyCycle = 200;
+  dutyCycle = 220;
   pos = 0;
   // Configurer les fonctionnalités PWM
   ledcAttach(enable1Pin, freq, resolution);
@@ -124,8 +124,8 @@ void loop() {
   ultraAM = readSensor(trigPinAM, echoPinAM);
   ultraAG = readSensor(trigPinAG, echoPinAG);
   ultraAD = readSensor(trigPinAD, echoPinAD);
-  ultraCD = readSensor(trigPinCD, echoPinCD);
-  ultraCG = readSensor(trigPinCG, echoPinCG);
+  //ultraCD = readSensor(trigPinCD, echoPinCD);
+  //ultraCG = readSensor(trigPinCG, echoPinCG);
 
   display.clearDisplay();
 
@@ -139,25 +139,22 @@ void loop() {
   display.display();
 
   switch(etatRobot){
-    case 0 : break;
-      
-
+    case 0 : 
+      avancer();
+      break;
 
 
     default : break;
 
 
-
-
-
   }
-
+/*
   if (ultraAM < 20){
     motorStop();
   } else {
     forward();
   }
-
+*/
   myservo.write(pos);
 
 }
@@ -179,17 +176,38 @@ int readSensor(int trigPin, int echoPin){
   return distanceCm;
 }
 
-void forward() {
+void avancer(){
+  
+  if (ultraAM < 20){
+    backward();
+    delay(100);
+    if(ultraAD <= ultraAG){
+      gauche();
+    } else {
+      droite();
+    }
+    delay(100);
 
-  // Move the DC motor forward at maximum speed
-  digitalWrite(motor1Pin1, HIGH);
-  digitalWrite(motor1Pin2, LOW);
-  digitalWrite(motor2Pin1, HIGH);
-  digitalWrite(motor2Pin2, LOW);
+  } else if ( ultraAD < 30) {
+    backward();
+    delay(100);
+    gauche();
+    delay(100);
+  } else if (ultraAG < 30){
+    backward();
+    delay(100);
+    droite();
+    delay(100);
+  } else {
+    forward();
+  }
+
+
+
 
 }
 
-void droite() {
+void forward() {
 
   // Move the DC motor forward at maximum speed
   digitalWrite(motor1Pin1, HIGH);
@@ -202,10 +220,20 @@ void droite() {
 void gauche() {
 
   // Move the DC motor forward at maximum speed
-  digitalWrite(motor1Pin1, HIGH);
-  digitalWrite(motor1Pin2, LOW);
+  digitalWrite(motor1Pin1, LOW);
+  digitalWrite(motor1Pin2, HIGH);
   digitalWrite(motor2Pin1, HIGH);
   digitalWrite(motor2Pin2, LOW);
+
+}
+
+void droite() {
+
+  // Move the DC motor forward at maximum speed
+  digitalWrite(motor1Pin1, HIGH);
+  digitalWrite(motor1Pin2, LOW);
+  digitalWrite(motor2Pin1, LOW);
+  digitalWrite(motor2Pin2, HIGH);
 
 }
 
